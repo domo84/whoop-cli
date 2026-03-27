@@ -10,6 +10,39 @@ description: >
 allowed-tools: Bash
 ---
 
+## Command Index
+
+```
+whoop auth
+  setup               Interactively configure config.yaml
+  login               OAuth2 browser authentication
+  logout              Revoke token and delete credentials
+  status              Show token validity
+
+whoop user
+  profile             Name, email, user ID
+  measurements        Height, weight, max heart rate
+
+whoop cycle
+  list                List physiological cycles
+  get <id>            Get cycle by numeric ID
+  sleep <cycleId>     Get sleep record for a cycle
+
+whoop sleep
+  list                List sleep records (includes naps)
+  get <id>            Get sleep record by ID
+
+whoop recovery
+  list                List recovery scores
+  get <cycleId>       Get recovery score for a cycle
+
+whoop workout
+  list                List workouts
+  get <id>            Get workout by ID
+
+Global flags: --output table|json   --limit N   --start YYYY-MM-DD   --end YYYY-MM-DD   --all
+```
+
 ## Accessing WHOOP Data
 
 Check authentication status before running any data command:
