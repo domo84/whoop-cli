@@ -1,98 +1,127 @@
 ---
 name: whoop-cli
-description: >
-  This skill should be used when the user asks about their WHOOP fitness data,
-  recovery scores, sleep metrics, workout history, strain, HRV, resting heart rate,
-  or any physiological data from their WHOOP wearable. Trigger phrases include:
-  "show my recovery", "how did I sleep", "what's my HRV", "list my workouts",
-  "WHOOP data", "my strain today", "recovery score", "sleep performance",
-  "my cycles", "whoop stats", "fitness data".
-allowed-tools: Bash
+description: Access WHOOP fitness wearable data — recovery scores, sleep, workouts, cycles, HRV, strain, and body metrics. Use when the user asks about their WHOOP data, fitness metrics, recovery, sleep performance, or workout history.
+allowed-tools: Bash(whoop:*)
 ---
 
-## Command Index
+# WHOOP Data with whoop-cli
 
-```
-whoop auth
-  setup               Interactively configure config.yaml
-  login               OAuth2 browser authentication
-  logout              Revoke token and delete credentials
-  status              Show token validity
+## Quick start
 
-whoop user
-  profile             Name, email, user ID
-  measurements        Height, weight, max heart rate
-
-whoop cycle
-  list                List physiological cycles
-  get <id>            Get cycle by numeric ID
-  sleep <cycleId>     Get sleep record for a cycle
-
-whoop sleep
-  list                List sleep records (includes naps)
-  get <id>            Get sleep record by ID
-
-whoop recovery
-  list                List recovery scores
-  get <cycleId>       Get recovery score for a cycle
-
-whoop workout
-  list                List workouts
-  get <id>            Get workout by ID
-
-Global flags: --output table|json   --limit N   --start YYYY-MM-DD   --end YYYY-MM-DD   --all
-```
-
-## Accessing WHOOP Data
-
-Check authentication status before running any data command:
-
-```sh
+```bash
+# check auth status
 whoop auth status
+# list latest recovery scores
+whoop recovery list
+# get today's sleep
+whoop sleep list --limit 1
+# list recent workouts
+whoop workout list --limit 5
 ```
 
-If not authenticated, instruct the user to run `whoop auth setup` then `whoop auth login`.
+## Commands
 
-## Mapping User Intent to Commands
+### Auth
 
-| User asks about | Command |
-|---|---|
-| Recovery score, HRV, resting heart rate, SPO2 | `whoop recovery list` / `whoop recovery get <cycleId>` |
-| Sleep, naps, sleep performance, sleep stages | `whoop sleep list` / `whoop sleep get <id>` |
-| Workouts, strain, sport, duration | `whoop workout list` / `whoop workout get <id>` |
-| Cycles, daily strain, energy | `whoop cycle list` / `whoop cycle get <id>` |
-| Profile, body measurements | `whoop user profile` / `whoop user measurements` |
-
-## Fetching Data
-
-Use `--output json` when you need precise values for calculations or comparisons. Use `--output table` for summaries shown directly to the user.
-
-```sh
-# Last 5 recovery scores
-whoop recovery list --limit 5 --output json
-
-# Sleep records for a date range
-whoop sleep list --start 2026-03-20 --end 2026-03-27 --output json
-
-# All workouts (full history)
-whoop workout list --all --output json
-
-# Recovery for a specific cycle
-whoop recovery get 1001 --output json
+```bash
+whoop auth setup           # interactively configure config.yaml (client ID, secret)
+whoop auth login           # open browser for OAuth2 authentication
+whoop auth logout          # revoke token and delete local credentials
+whoop auth status          # show whether token is valid or expired
 ```
 
-Date filters accept `YYYY-MM-DD` or RFC3339 format. Use `--all` only when the user asks for full history — it may be slow.
+### User
 
-## Interpreting Key Fields
+```bash
+whoop user profile         # name, email, user ID
+whoop user measurements    # height, weight, max heart rate
+```
 
-- `score_state`: `SCORED` = data ready, `PENDING_SCORE` = still processing, `UNSCORABLE` = insufficient data
-- `recovery_score`: 0–100 percentage — higher is better
-- `hrv_rmssd_milli`: heart rate variability in milliseconds
-- `resting_heart_rate`: beats per minute
-- `strain`: 0–21 scale (WHOOP strain score)
-- `sleep_performance_percentage`: actual sleep vs needed sleep (%)
-- Duration fields are in milliseconds (`_milli` suffix) — divide by 3,600,000 for hours
+### Recovery
 
-## Responding to the User
+```bash
+whoop recovery list
+whoop recovery list --limit 7                         # last 7 days
+whoop recovery list --start 2026-03-01 --end 2026-03-27
+whoop recovery list --all                             # full history
+whoop recovery get <cycleId>                          # single recovery by cycle ID
+```
 
-Surface the most relevant metric(s) for the question asked. For recovery questions lead with `recovery_score`, HRV, and resting heart rate. For sleep questions lead with `sleep_performance_percentage` and total sleep time. Avoid dumping raw JSON — summarize the key numbers in plain language.
+### Sleep
+
+```bash
+whoop sleep list
+whoop sleep list --limit 7
+whoop sleep list --start 2026-03-01 --end 2026-03-27
+whoop sleep list --all
+whoop sleep get <id>                                  # single sleep record by ID
+```
+
+### Cycle
+
+```bash
+whoop cycle list
+whoop cycle list --limit 7
+whoop cycle list --start 2026-03-01 --end 2026-03-27
+whoop cycle list --all
+whoop cycle get <id>                                  # single cycle by numeric ID
+whoop cycle sleep <cycleId>                           # sleep record linked to a cycle
+```
+
+### Workout
+
+```bash
+whoop workout list
+whoop workout list --limit 10
+whoop workout list --start 2026-03-01 --end 2026-03-27
+whoop workout list --all
+whoop workout get <id>                                # single workout by ID
+```
+
+## Global flags
+
+```bash
+--output table   # default — human-readable table
+--output json    # full data, use for precise values and calculations
+--limit N        # records per page (max 25)
+--start DATE     # YYYY-MM-DD or RFC3339
+--end DATE       # YYYY-MM-DD or RFC3339
+--all            # fetch all pages (slow on large history)
+```
+
+## Example: Weekly recovery summary
+
+```bash
+whoop recovery list --start 2026-03-20 --end 2026-03-27 --output json
+```
+
+## Example: Last night's sleep
+
+```bash
+whoop sleep list --limit 1 --output json
+```
+
+## Example: This week's workouts
+
+```bash
+whoop workout list --start 2026-03-20 --end 2026-03-27 --output json
+```
+
+## Example: Full day picture (cycle + recovery + sleep)
+
+```bash
+whoop cycle list --limit 1 --output json
+# use cycle ID from above
+whoop recovery get <cycleId> --output json
+whoop cycle sleep <cycleId> --output json
+```
+
+## Key fields
+
+- `recovery_score` — 0–100%, higher is better
+- `hrv_rmssd_milli` — HRV in milliseconds
+- `resting_heart_rate` — bpm
+- `strain` — 0–21 daily strain score
+- `sleep_performance_percentage` — actual vs needed sleep
+- `score_state` — `SCORED` ready, `PENDING_SCORE` processing, `UNSCORABLE` no data
+- `_milli` fields — milliseconds; divide by 3,600,000 for hours
