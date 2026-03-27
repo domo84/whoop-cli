@@ -10,6 +10,14 @@ A command-line tool for accessing your [WHOOP](https://www.whoop.com) fitness da
 ## Installation
 
 ```sh
+go install github.com/magnusmv/whoop-cli/cmd/whoop@latest
+```
+
+The `whoop` binary is installed to `$GOPATH/bin` (typically `~/go/bin`) — make sure that's on your `$PATH`.
+
+**Build from source:**
+
+```sh
 git clone https://github.com/domo84/whoop-cli.git
 cd whoop-cli
 go build -o whoop ./cmd/whoop
