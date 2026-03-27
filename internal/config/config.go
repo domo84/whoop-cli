@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	defaultConfigDir  = ".whoop-cli"
+	defaultConfigDir  = ".config/whoop-cli"
 	defaultConfigFile = "config"
 	defaultPort       = 8484
 	defaultOutput     = "table"
