@@ -11,7 +11,7 @@ import (
 
 	"golang.org/x/oauth2"
 
-	"github.com/magnusmv/whoop-cli/internal/config"
+	"github.com/domo84/whoop-cli/internal/config"
 )
 
 const (

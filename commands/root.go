@@ -6,10 +6,10 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/magnusmv/whoop-cli/internal/api"
-	"github.com/magnusmv/whoop-cli/internal/auth"
-	"github.com/magnusmv/whoop-cli/internal/config"
-	"github.com/magnusmv/whoop-cli/internal/output"
+	"github.com/domo84/whoop-cli/internal/api"
+	"github.com/domo84/whoop-cli/internal/auth"
+	"github.com/domo84/whoop-cli/internal/config"
+	"github.com/domo84/whoop-cli/internal/output"
 )
 
 // services groups all Whoop API service interfaces.

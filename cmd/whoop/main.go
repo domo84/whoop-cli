@@ -1,6 +1,6 @@
 package main
 
-import "github.com/magnusmv/whoop-cli/commands"
+import "github.com/domo84/whoop-cli/commands"
 
 func main() {
 	commands.Execute()

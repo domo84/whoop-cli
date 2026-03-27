@@ -4,7 +4,7 @@ AI agent guidance for whoop-cli — a Go CLI for the WHOOP fitness wearable API 
 
 ## Tech Stack
 
-- Go 1.25, module `github.com/magnusmv/whoop-cli`
+- Go 1.25, module `github.com/domo84/whoop-cli`
 - cobra (CLI), viper (config), golang.org/x/oauth2, tablewriter, fatih/color
 - testify for assertions
 

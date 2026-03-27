@@ -9,10 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/magnusmv/whoop-cli/internal/api"
-	"github.com/magnusmv/whoop-cli/internal/config"
-	"github.com/magnusmv/whoop-cli/internal/output"
-	"github.com/magnusmv/whoop-cli/internal/testutil"
+	"github.com/domo84/whoop-cli/internal/api"
+	"github.com/domo84/whoop-cli/internal/config"
+	"github.com/domo84/whoop-cli/internal/output"
+	"github.com/domo84/whoop-cli/internal/testutil"
 )
 
 // --- Mock services ---

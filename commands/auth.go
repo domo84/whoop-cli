@@ -10,8 +10,8 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
-	"github.com/magnusmv/whoop-cli/internal/auth"
-	"github.com/magnusmv/whoop-cli/internal/config"
+	"github.com/domo84/whoop-cli/internal/auth"
+	"github.com/domo84/whoop-cli/internal/config"
 )
 
 func newAuthCmd() *cobra.Command {

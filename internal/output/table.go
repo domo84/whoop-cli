@@ -9,7 +9,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"github.com/olekukonko/tablewriter/tw"
 
-	"github.com/magnusmv/whoop-cli/internal/api"
+	"github.com/domo84/whoop-cli/internal/api"
 )
 
 // TableFormatter renders data as an ASCII table.

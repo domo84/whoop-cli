@@ -1,4 +1,4 @@
-module github.com/magnusmv/whoop-cli
+module github.com/domo84/whoop-cli
 
 go 1.25.0
 

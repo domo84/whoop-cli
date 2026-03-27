@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/magnusmv/whoop-cli/internal/api"
+	"github.com/domo84/whoop-cli/internal/api"
 )
 
 var baseTime = time.Date(2024, 6, 1, 8, 0, 0, 0, time.UTC)

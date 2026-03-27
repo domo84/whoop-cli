@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/magnusmv/whoop-cli/internal/api"
-	"github.com/magnusmv/whoop-cli/internal/testutil"
+	"github.com/domo84/whoop-cli/internal/api"
+	"github.com/domo84/whoop-cli/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
