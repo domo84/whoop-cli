@@ -1,12 +1,17 @@
 package commands
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
 	"github.com/magnusmv/whoop-cli/internal/auth"
+	"github.com/magnusmv/whoop-cli/internal/config"
 )
 
 func newAuthCmd() *cobra.Command {
@@ -17,7 +22,82 @@ func newAuthCmd() *cobra.Command {
 	cmd.AddCommand(newAuthLoginCmd())
 	cmd.AddCommand(newAuthLogoutCmd())
 	cmd.AddCommand(newAuthStatusCmd())
+	cmd.AddCommand(newAuthSetupCmd())
 	return cmd
+}
+
+func newAuthSetupCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "setup",
+		Short: "Interactively configure config.yaml",
+		Long: `Prompts for each config value and saves to config.yaml.
+
+Press Enter to keep the current value. Get your API credentials at:
+  https://developer.whoop.com`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg := state.cfg
+			if cfg == nil {
+				cfg = &config.Config{
+					OutputFormat: "table",
+					RedirectPort: 8484,
+				}
+			}
+
+			scanner := bufio.NewScanner(os.Stdin)
+
+			prompt := func(label, current string) string {
+				if current != "" {
+					fmt.Fprintf(cmd.OutOrStdout(), "%s [%s]: ", label, current)
+				} else {
+					fmt.Fprintf(cmd.OutOrStdout(), "%s: ", label)
+				}
+				scanner.Scan()
+				v := strings.TrimSpace(scanner.Text())
+				if v == "" {
+					return current
+				}
+				return v
+			}
+
+			fmt.Fprintln(cmd.OutOrStdout(), "Configure whoop-cli (press Enter to keep current value)\n")
+
+			cfg.ClientID = prompt("Client ID", cfg.ClientID)
+
+			// Mask secret in display
+			maskedSecret := ""
+			if len(cfg.ClientSecret) > 4 {
+				maskedSecret = strings.Repeat("*", len(cfg.ClientSecret)-4) + cfg.ClientSecret[len(cfg.ClientSecret)-4:]
+			} else if cfg.ClientSecret != "" {
+				maskedSecret = "****"
+			}
+			cfg.ClientSecret = prompt("Client Secret", maskedSecret)
+			// If user kept the masked value, restore the real secret
+			if cfg.ClientSecret == maskedSecret && maskedSecret != "" {
+				cfg.ClientSecret = state.cfg.ClientSecret
+			}
+
+			outputFmt := prompt("Output format (table/json)", cfg.OutputFormat)
+			if outputFmt != "table" && outputFmt != "json" {
+				fmt.Fprintf(cmd.ErrOrStderr(), "Warning: unknown output format %q, keeping %q\n", outputFmt, cfg.OutputFormat)
+			} else {
+				cfg.OutputFormat = outputFmt
+			}
+
+			portStr := prompt("OAuth2 redirect port", strconv.Itoa(cfg.RedirectPort))
+			if p, err := strconv.Atoi(portStr); err == nil {
+				cfg.RedirectPort = p
+			} else {
+				fmt.Fprintf(cmd.ErrOrStderr(), "Warning: invalid port %q, keeping %d\n", portStr, cfg.RedirectPort)
+			}
+
+			if err := state.cfgMgr.Save(cfg); err != nil {
+				return fmt.Errorf("saving config: %w", err)
+			}
+
+			fmt.Fprintln(cmd.OutOrStdout(), "\n"+color.GreenString("✓ Config saved.")+" Run `whoop auth login` to authenticate.")
+			return nil
+		},
+	}
 }
 
 func newAuthLoginCmd() *cobra.Command {

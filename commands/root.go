@@ -35,6 +35,7 @@ var state = &rootState{}
 var authExemptCommands = map[string]bool{
 	"whoop auth login":  true,
 	"whoop auth logout": true,
+	"whoop auth setup":  true,
 	"whoop auth status": true,
 	"whoop completion":  true,
 	"whoop help":        true,
