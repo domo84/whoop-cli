@@ -119,7 +119,7 @@ func setupState(t *testing.T, svc *services) {
 	mgr, err := config.NewManager(dir)
 	require.NoError(t, err)
 	state.cfgMgr = mgr
-	state.cfg = &config.Config{OutputFormat: "json", RedirectPort: 8484}
+	state.cfg = &config.Config{OutputFormat: "json", RedirectPort: 8282}
 	state.svc = svc
 	state.formatter = output.New("json")
 	t.Cleanup(func() {

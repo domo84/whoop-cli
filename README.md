@@ -109,7 +109,7 @@ whoop recovery list
 client_id: <your-client-id>
 client_secret: <your-client-secret>
 output_format: table        # table or json
-redirect_port: 8484         # local OAuth2 callback port
+redirect_port: 8282         # local OAuth2 callback port
 ```
 
 Environment variables override config file values:

@@ -39,7 +39,7 @@ Press Enter to keep the current value. Get your API credentials at:
 			if cfg == nil {
 				cfg = &config.Config{
 					OutputFormat: "table",
-					RedirectPort: 8484,
+					RedirectPort: 8282,
 				}
 			}
 
@@ -59,7 +59,7 @@ Press Enter to keep the current value. Get your API credentials at:
 				return v
 			}
 
-			fmt.Fprintln(cmd.OutOrStdout(), "Configure whoop-cli (press Enter to keep current value)\n")
+			fmt.Fprintln(cmd.OutOrStdout(), "Configure whoop-cli (press Enter to keep current value)")
 
 			cfg.ClientID = prompt("Client ID", cfg.ClientID)
 

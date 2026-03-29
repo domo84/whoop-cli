@@ -18,7 +18,7 @@ func TestLoad_Defaults(t *testing.T) {
 	cfg, err := mgr.Load()
 	require.NoError(t, err)
 	assert.Equal(t, "table", cfg.OutputFormat)
-	assert.Equal(t, 8484, cfg.RedirectPort)
+	assert.Equal(t, 8282, cfg.RedirectPort)
 	assert.Empty(t, cfg.ClientID)
 }
 

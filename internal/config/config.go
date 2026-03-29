@@ -11,7 +11,7 @@ import (
 const (
 	defaultConfigDir  = ".config/whoop-cli"
 	defaultConfigFile = "config"
-	defaultPort       = 8484
+	defaultPort       = 8282
 	defaultOutput     = "table"
 )
 
