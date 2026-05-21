@@ -26,7 +26,8 @@ func TestCallbackServer_ValidCallback(t *testing.T) {
 	port := freePort(t)
 	state := "test-state-value"
 
-	srv := newCallbackServer(port, state)
+	srv, err := newCallbackServer(fmt.Sprintf("http://localhost:%d/callback/whoop", port), state)
+	require.NoError(t, err)
 	redirectURI, err := srv.Start()
 	require.NoError(t, err)
 	defer srv.Shutdown(context.Background())
@@ -47,7 +48,8 @@ func TestCallbackServer_ValidCallback(t *testing.T) {
 
 func TestCallbackServer_StateMismatch(t *testing.T) {
 	port := freePort(t)
-	srv := newCallbackServer(port, "expected-state")
+	srv, err := newCallbackServer(fmt.Sprintf("http://localhost:%d/callback/whoop", port), "expected-state")
+	require.NoError(t, err)
 	redirectURI, err := srv.Start()
 	require.NoError(t, err)
 	defer srv.Shutdown(context.Background())
@@ -70,7 +72,8 @@ func TestCallbackServer_StateMismatch(t *testing.T) {
 
 func TestCallbackServer_OAuthError(t *testing.T) {
 	port := freePort(t)
-	srv := newCallbackServer(port, "state")
+	srv, err := newCallbackServer(fmt.Sprintf("http://localhost:%d/callback/whoop", port), "state")
+	require.NoError(t, err)
 	redirectURI, err := srv.Start()
 	require.NoError(t, err)
 	defer srv.Shutdown(context.Background())
@@ -93,8 +96,9 @@ func TestCallbackServer_OAuthError(t *testing.T) {
 
 func TestCallbackServer_ContextCancelled(t *testing.T) {
 	port := freePort(t)
-	srv := newCallbackServer(port, "state")
-	_, err := srv.Start()
+	srv, err := newCallbackServer(fmt.Sprintf("http://localhost:%d/callback/whoop", port), "state")
+	require.NoError(t, err)
+	_, err = srv.Start()
 	require.NoError(t, err)
 	defer srv.Shutdown(context.Background())
 
@@ -102,4 +106,25 @@ func TestCallbackServer_ContextCancelled(t *testing.T) {
 	defer cancel()
 	_, err = srv.Wait(ctx)
 	require.Error(t, err)
+}
+
+func TestCallbackServer_InvalidURI(t *testing.T) {
+	cases := []struct {
+		name string
+		uri  string
+		want string
+	}{
+		{"missing port", "http://localhost/callback", "explicit port is required"},
+		{"missing path", "http://localhost:8282", "path is required"},
+		{"wrong scheme", "ftp://localhost:8282/callback", "scheme must be http or https"},
+		{"empty", "", "scheme must be http or https"},
+		{"no host", "http:///callback", "host is required"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := newCallbackServer(tc.uri, "state")
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), tc.want)
+		})
+	}
 }

@@ -9,10 +9,10 @@ import (
 )
 
 const (
-	defaultConfigDir  = ".config/whoop-cli"
-	defaultConfigFile = "config"
-	defaultPort       = 8282
-	defaultOutput     = "table"
+	defaultConfigDir   = ".config/whoop-cli"
+	defaultConfigFile  = "config"
+	DefaultRedirectURI = "http://localhost:8282/callback/whoop"
+	defaultOutput      = "table"
 )
 
 // Config holds all application settings.
@@ -20,7 +20,7 @@ type Config struct {
 	OutputFormat string `mapstructure:"output_format" yaml:"output_format"`
 	ClientID     string `mapstructure:"client_id"     yaml:"client_id"`
 	ClientSecret string `mapstructure:"client_secret" yaml:"client_secret"`
-	RedirectPort int    `mapstructure:"redirect_port" yaml:"redirect_port"`
+	RedirectURI  string `mapstructure:"redirect_uri"  yaml:"redirect_uri"`
 }
 
 // Manager handles reading and writing the application config file.
@@ -49,7 +49,7 @@ func NewManager(configDir string) (Manager, error) {
 
 	v := viper.New()
 	v.SetDefault("output_format", defaultOutput)
-	v.SetDefault("redirect_port", defaultPort)
+	v.SetDefault("redirect_uri", DefaultRedirectURI)
 	v.SetConfigName(defaultConfigFile)
 	v.SetConfigType("yaml")
 	v.AddConfigPath(configDir)
@@ -59,7 +59,7 @@ func NewManager(configDir string) (Manager, error) {
 	v.BindEnv("client_id", "WHOOP_CLIENT_ID")         //nolint:errcheck
 	v.BindEnv("client_secret", "WHOOP_CLIENT_SECRET") //nolint:errcheck
 	v.BindEnv("output_format", "WHOOP_OUTPUT")        //nolint:errcheck
-	v.BindEnv("redirect_port", "WHOOP_REDIRECT_PORT") //nolint:errcheck
+	v.BindEnv("redirect_uri", "WHOOP_REDIRECT_URI")   //nolint:errcheck
 
 	return &viperManager{
 		v:       v,
@@ -87,7 +87,7 @@ func (m *viperManager) Save(cfg *Config) error {
 		return fmt.Errorf("creating config directory: %w", err)
 	}
 	m.v.Set("output_format", cfg.OutputFormat)
-	m.v.Set("redirect_port", cfg.RedirectPort)
+	m.v.Set("redirect_uri", cfg.RedirectURI)
 	// Never persist client_id / client_secret to disk if they came from env.
 	if cfg.ClientID != "" {
 		m.v.Set("client_id", cfg.ClientID)

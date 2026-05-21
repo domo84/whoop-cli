@@ -18,7 +18,7 @@ func TestLoad_Defaults(t *testing.T) {
 	cfg, err := mgr.Load()
 	require.NoError(t, err)
 	assert.Equal(t, "table", cfg.OutputFormat)
-	assert.Equal(t, 8282, cfg.RedirectPort)
+	assert.Equal(t, "http://localhost:8282/callback/whoop", cfg.RedirectURI)
 	assert.Empty(t, cfg.ClientID)
 }
 
@@ -31,7 +31,7 @@ func TestSave_And_Load(t *testing.T) {
 		OutputFormat: "json",
 		ClientID:     "my-client",
 		ClientSecret: "my-secret",
-		RedirectPort: 9999,
+		RedirectURI:  "http://localhost:9999/cb",
 	}
 	require.NoError(t, mgr.Save(original))
 
@@ -49,7 +49,7 @@ func TestSave_And_Load(t *testing.T) {
 	assert.Equal(t, "json", loaded.OutputFormat)
 	assert.Equal(t, "my-client", loaded.ClientID)
 	assert.Equal(t, "my-secret", loaded.ClientSecret)
-	assert.Equal(t, 9999, loaded.RedirectPort)
+	assert.Equal(t, "http://localhost:9999/cb", loaded.RedirectURI)
 }
 
 func TestLoad_EnvOverride(t *testing.T) {

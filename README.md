@@ -108,9 +108,11 @@ whoop recovery list
 ```yaml
 client_id: <your-client-id>
 client_secret: <your-client-secret>
-output_format: table        # table or json
-redirect_port: 8282         # local OAuth2 callback port
+output_format: table                                  # table or json
+redirect_uri: http://localhost:8282/callback/whoop    # OAuth2 callback URI
 ```
+
+The `redirect_uri` must match **exactly** one of the redirect URIs registered in your WHOOP developer app. It must include scheme, host, explicit port, and path.
 
 Environment variables override config file values:
 
@@ -119,7 +121,7 @@ Environment variables override config file values:
 | `WHOOP_CLIENT_ID` | `client_id` |
 | `WHOOP_CLIENT_SECRET` | `client_secret` |
 | `WHOOP_OUTPUT` | `output_format` |
-| `WHOOP_REDIRECT_PORT` | `redirect_port` |
+| `WHOOP_REDIRECT_URI` | `redirect_uri` |
 
 ## Credentials
 

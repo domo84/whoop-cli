@@ -3,8 +3,8 @@ package commands
 import (
 	"bufio"
 	"fmt"
+	"net/url"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/fatih/color"
@@ -39,8 +39,11 @@ Press Enter to keep the current value. Get your API credentials at:
 			if cfg == nil {
 				cfg = &config.Config{
 					OutputFormat: "table",
-					RedirectPort: 8282,
+					RedirectURI:  config.DefaultRedirectURI,
 				}
+			}
+			if cfg.RedirectURI == "" {
+				cfg.RedirectURI = config.DefaultRedirectURI
 			}
 
 			scanner := bufio.NewScanner(os.Stdin)
@@ -83,12 +86,11 @@ Press Enter to keep the current value. Get your API credentials at:
 				cfg.OutputFormat = outputFmt
 			}
 
-			portStr := prompt("OAuth2 redirect port", strconv.Itoa(cfg.RedirectPort))
-			if p, err := strconv.Atoi(portStr); err == nil {
-				cfg.RedirectPort = p
-			} else {
-				fmt.Fprintf(cmd.ErrOrStderr(), "Warning: invalid port %q, keeping %d\n", portStr, cfg.RedirectPort)
+			redirectURI := prompt("OAuth2 redirect URI", cfg.RedirectURI)
+			if u, err := url.Parse(redirectURI); err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" || u.Port() == "" || u.Path == "" {
+				fmt.Fprintf(cmd.ErrOrStderr(), "Warning: %q does not look like a complete redirect URI (expected scheme://host:port/path)\n", redirectURI)
 			}
+			cfg.RedirectURI = redirectURI
 
 			if err := state.cfgMgr.Save(cfg); err != nil {
 				return fmt.Errorf("saving config: %w", err)

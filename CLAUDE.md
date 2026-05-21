@@ -37,7 +37,7 @@ cobra command → service interface → api.Client → WHOOP API v2
 ### Key packages
 
 - **`commands/`** — Cobra commands. Each resource (user, cycle, sleep, recovery, workout, auth) has its own file. `root.go` defines the shared `rootState` struct and the `authExemptCommands` map. New auth-exempt commands must be added to that map.
-- **`internal/config/`** — `Manager` interface backed by Viper. Reads `~/.config/whoop-cli/config.yaml` and binds env vars (`WHOOP_CLIENT_ID`, `WHOOP_CLIENT_SECRET`, `WHOOP_OUTPUT`, `WHOOP_REDIRECT_PORT`). `Save()` writes config back to disk.
+- **`internal/config/`** — `Manager` interface backed by Viper. Reads `~/.config/whoop-cli/config.yaml` and binds env vars (`WHOOP_CLIENT_ID`, `WHOOP_CLIENT_SECRET`, `WHOOP_OUTPUT`, `WHOOP_REDIRECT_URI`). `Save()` writes config back to disk.
 - **`internal/auth/`** — OAuth2 PKCE flow (`pkce.go`), local callback server (`server.go`), token persistence (`token_store.go` → `~/.config/whoop-cli/credentials.json`), and auto-refreshing `TokenSource` (`auth.go`).
 - **`internal/api/`** — Typed API client. `client.go` handles HTTP with one retry on 429 (reads `X-RateLimit-Reset`). Each resource has its own file with a service interface and implementation. `models.go` contains all API types.
 - **`internal/output/`** — `Formatter` interface with `table` and `json` implementations.

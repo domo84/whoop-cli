@@ -75,7 +75,10 @@ func (f *pkceFlow) Login(ctx context.Context) (*oauth2.Token, error) {
 		return nil, fmt.Errorf("generating state: %w", err)
 	}
 
-	srv := newCallbackServer(f.cfg.RedirectPort, state)
+	srv, err := newCallbackServer(f.cfg.RedirectURI, state)
+	if err != nil {
+		return nil, err
+	}
 	redirectURI, err := srv.Start()
 	if err != nil {
 		return nil, err
@@ -89,6 +92,8 @@ func (f *pkceFlow) Login(ctx context.Context) (*oauth2.Token, error) {
 		oauth2.SetAuthURLParam("redirect_uri", redirectURI),
 	)
 
+	fmt.Printf("Callback URL: %s\n", redirectURI)
+	fmt.Printf("Make sure this exact URI is registered as a redirect in your WHOOP developer app.\n\n")
 	fmt.Printf("Opening browser for authentication...\n")
 	fmt.Printf("If your browser does not open automatically, visit:\n\n  %s\n\n", authURLStr)
 	openBrowser(authURLStr)

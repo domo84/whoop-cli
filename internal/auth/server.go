@@ -5,43 +5,70 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/url"
 	"time"
 )
 
-// callbackServer listens on localhost for the OAuth2 redirect.
+// callbackServer listens on the host/port derived from a redirect URI
+// and serves the OAuth2 callback at the URI's path.
 type callbackServer struct {
-	port   int
+	uri    string
+	host   string
+	port   string
+	path   string
 	codeCh chan string
 	errCh  chan error
 	state  string
 	server *http.Server
 }
 
-func newCallbackServer(port int, state string) *callbackServer {
+func newCallbackServer(redirectURI, state string) (*callbackServer, error) {
+	u, err := url.Parse(redirectURI)
+	if err != nil {
+		return nil, fmt.Errorf("invalid redirect URI %q: %w", redirectURI, err)
+	}
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return nil, fmt.Errorf("invalid redirect URI %q: scheme must be http or https", redirectURI)
+	}
+	host := u.Hostname()
+	if host == "" {
+		return nil, fmt.Errorf("invalid redirect URI %q: host is required", redirectURI)
+	}
+	port := u.Port()
+	if port == "" {
+		return nil, fmt.Errorf("invalid redirect URI %q: explicit port is required (e.g. http://localhost:8282/callback)", redirectURI)
+	}
+	if u.Path == "" {
+		return nil, fmt.Errorf("invalid redirect URI %q: path is required (e.g. /callback)", redirectURI)
+	}
+
 	s := &callbackServer{
-		port:  port,
-		state: state,
+		uri:    redirectURI,
+		host:   host,
+		port:   port,
+		path:   u.Path,
+		state:  state,
 		codeCh: make(chan string, 1),
 		errCh:  make(chan error, 1),
 	}
 	mux := http.NewServeMux()
-	mux.HandleFunc("/callback/whoop", s.handleCallback)
+	mux.HandleFunc(s.path, s.handleCallback)
 	s.server = &http.Server{
 		Handler:      mux,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
-	return s
+	return s, nil
 }
 
 // Start begins listening and returns the redirect_uri to embed in the auth URL.
 func (s *callbackServer) Start() (string, error) {
-	ln, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", s.port))
+	ln, err := net.Listen("tcp", net.JoinHostPort(s.host, s.port))
 	if err != nil {
-		return "", fmt.Errorf("starting callback server on port %d: %w", s.port, err)
+		return "", fmt.Errorf("starting callback server on %s: %w", net.JoinHostPort(s.host, s.port), err)
 	}
 	go s.server.Serve(ln) //nolint:errcheck
-	return fmt.Sprintf("http://localhost:%d/callback/whoop", s.port), nil
+	return s.uri, nil
 }
 
 // Wait blocks until the authorization code is received or ctx is cancelled.
